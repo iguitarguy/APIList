@@ -1,0 +1,136 @@
+<html>
+
+<head>
+	<title>API mashup</title>
+	<link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css" integrity="sha384-nn4HPE8lTHyVtfCBi5yW9d20FjT8BJwUXyWZT9InLYax14RDjBj46LmSztkmNP9w" crossorigin="anonymous">
+	<script
+	src="https://code.jquery.com/jquery-3.3.1.js"
+	integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="
+	crossorigin="anonymous"></script>
+	<style>
+	body {
+	   margin-top: 100px;
+	   margin-left: 100px;
+	}
+	</style>
+</head>
+
+<body>
+	<h3>Enter Stock Quote</h3>
+	<form class="pure-form">
+	<input type="text" class="pure-input-rounded" id="quote">
+	<button type="submit" class="pure-button" id="search">Search</button>
+	<button class="pure-button" onclick="stockClearFunction()">Reset</button>
+	</form>
+
+	<p id= "stocks"></p>
+	
+	
+	<hr>
+	<h3>Joke Button</h3>
+	<button class="pure-button" onclick="jokeFunction()">Show me the joke!</button>
+
+	<hr>
+	<h3>Show IP Button</h3>
+	<button class="pure-button" onclick="ipFunction()">Show me my IP!</button>
+	<button class="pure-button" onclick="ipClearFunction()">Reset</button>
+	<p id= "ipaddress"></p>
+	
+	<hr>
+	<h3>Input Artist and Song, Get Lyrics!</h3>
+	<form class="pure-form">
+	Artist: <input type="text" class="pure-input-rounded" id="artist">
+	Song: <input type="text" class="pure-input-rounded" id="song">
+	<button type="submit" class="pure-button" id="input">Show Lyrics</button>
+	<button class="pure-button" onclick="lyricsClearFunction() id="reset">Reset</button>
+	</form>
+
+	<p id= "lyrics"></p>
+	
+	<hr>
+	<h3>Enter YouTube Video Keyword to Search:</h3>
+	<form class="pure-form">
+	Video ID: <input type="text" class="pure-input-rounded" id="videoid">
+	<button type="submit" class="pure-button" id="load">Load Video!</button>
+	Search Keyword: <input type="text" class="pure-input-rounded" id="searchid">
+	<button type="submit" class="pure-button" id="searchvideo">Search Video!</button>
+	</form>	
+	
+	
+
+    <script>
+		//STOCK QUOTE SCRIPTS
+		$('#search').click(function(e) {
+			 e.preventDefault();
+			 var stock = $('#quote').val();
+			 $.getJSON('https://api.iextrading.com/1.0/stock/' + stock + '/quote', function(json){
+				document.getElementById("stocks").innerHTML =("Current price of " + stock + ": " + json['latestPrice']);
+			 });
+		});
+		function stockClearFunction(){
+			document.getElementById("stocks").innerHTML ="";
+		}
+		
+		//JOKE SCRIPTS
+		function jokeFunction(){
+			$.getJSON('https://08ad1pao69.execute-api.us-east-1.amazonaws.com/dev/random_joke', function(json){
+				alert(json['setup']);
+				alert(json['punchline']);
+			});
+		}
+				
+		//IP SCRIPTS
+		function ipFunction(){
+			$.getJSON('https://api.ipify.org/?format=json', function(json){
+				document.getElementById("ipaddress").innerHTML =(json['ip']);
+			});
+		}
+		function ipClearFunction(){
+			document.getElementById("ipaddress").innerHTML ="";
+		}
+		
+		//LYRICS SCRIPTS
+		$('#input').click(function(e) {
+			e.preventDefault();
+			var artistname = $('#artist').val();
+			var songname = $('#song').val();
+			$.getJSON('https://api.lyrics.ovh/v1/' + artistname + '/' + songname, function(json){
+				document.getElementById("lyrics").innerHTML = ((json['lyrics']));
+			});
+		});
+		function lyricsClearFunction(){
+			document.getElementById("lyrics").innerHTML ="";
+			y = '';
+			document.body.appendChild(y);
+		}
+		
+		//YOUTUBE SCRIPTS
+		var varid = '-vH2eZAM30s';
+		var x = document.createElement("IFRAME");
+		x.setAttribute("src", "https://www.youtube.com/embed/" + varid + "?enablejsapi=1");
+		x.setAttribute("height", "390");
+		x.setAttribute("width", "640");
+		document.body.appendChild(x);
+				
+		$('#load').click(function(e) {
+			e.preventDefault();
+			varid = $('#videoid').val();
+			//x = document.createElement("IFRAME");
+			x.setAttribute("src", "https://www.youtube.com/embed/" + varid + "?enablejsapi=1");
+			document.body.appendChild(x);
+		});
+		
+		$('#searchvideo').click(function(e) {
+			e.preventDefault();
+			var keyword = $('#searchid').val();
+			$.getJSON('https://www.googleapis.com/youtube/v3/search?q=' + keyword + '&type=video&maxResults=1&part=snippet&key=AIzaSyCDAgR9EIqYD-jv7oCOzzY5PdC6Fa_MwcI', function(json){
+				varid = json.items[0].id.videoId;
+				console.log(varid);
+			 });
+			x.setAttribute("src", "https://www.youtube.com/embed/" + varid + "?enablejsapi=1");
+			document.body.appendChild(x);
+		});    
+    </script>
+    
+</body>
+</html>
